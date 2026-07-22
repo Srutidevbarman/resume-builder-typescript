@@ -1,6 +1,6 @@
 import { IUser } from "@/types/user.types";
 import mongoose from "mongoose";
-
+import bcrypt from "bcrypt";
 const userSchema = new mongoose.Schema<IUser>(
   {
     name: {
@@ -28,7 +28,13 @@ const userSchema = new mongoose.Schema<IUser>(
     timestamps: true,
   },
 );
-
+userSchema.pre("save", function (): void {
+  if (!this.isModified("password")) return;
+  this.password = bcrypt.hashSync(String(this.password), 10);
+});
+userSchema.methods.comparePass = function (candidatePassword: string): boolean {
+  return bcrypt.compareSync(candidatePassword, this.password);
+};
 const userModel = mongoose.model("user", userSchema);
 
 export default userModel;

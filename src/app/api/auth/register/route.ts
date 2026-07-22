@@ -1,6 +1,7 @@
 import { mongoDB } from "@/lib/mongodb";
+import { ApiResponse } from "@/types/api.types";
 import { RegisterBody } from "@/types/user.types";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 async function POST(req: NextRequest) {
   try {
@@ -9,7 +10,17 @@ async function POST(req: NextRequest) {
 
     let { name, email, mobile, password } = body;
 
-    if (!name || !email || !password) return;
+    if (!name || !email || !password) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "all fields are required",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
   } catch (error) {
     console.log("error in register api", error);
   }

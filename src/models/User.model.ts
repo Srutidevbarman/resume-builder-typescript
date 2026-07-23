@@ -1,7 +1,12 @@
 import { IUser } from "@/types/user.types";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-const userSchema = new mongoose.Schema<IUser>(
+
+interface UserDocument extends Omit<IUser, "_id">, Document {
+  comparePass(candidatePassword: string): boolean;
+}
+
+const userSchema = new mongoose.Schema<UserDocument>(
   {
     name: {
       type: String,
@@ -30,7 +35,7 @@ const userSchema = new mongoose.Schema<IUser>(
 );
 userSchema.pre("save", function (): void {
   if (!this.isModified("password")) return;
-  this.password = bcrypt.hashSync(String(this.password), 10);
+  this.password = bcrypt.hashSync(this.password, 10);
 });
 userSchema.methods.comparePass = function (candidatePassword: string): boolean {
   return bcrypt.compareSync(candidatePassword, this.password);

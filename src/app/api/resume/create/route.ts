@@ -1,10 +1,10 @@
-import { getCurrentUser } from "@/lib/getcurrentUser";
+import { getCurrentUser } from "@/lib/getCurrentUser";
 import { mongoDB } from "@/lib/mongodb";
 import resumeModel from "@/models/Resume.model";
 import { ApiResponse } from "@/types/api.types";
 import { NextRequest, NextResponse } from "next/server";
 
-async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     await mongoDB();
     const userId = await getCurrentUser();

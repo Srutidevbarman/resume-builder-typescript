@@ -1,5 +1,5 @@
 import { IResume } from "@/types/resume.types";
-import mongoose from "mongoose";
+import mongoose, { models, model } from "mongoose";
 
 const resumeSchema = new mongoose.Schema<IResume>(
   {
@@ -67,6 +67,7 @@ const resumeSchema = new mongoose.Schema<IResume>(
   },
 );
 
-const resumeModel = mongoose.model("Resume", resumeSchema);
+const resumeModel =
+  mongoose.models.Resume || mongoose.model("Resume", resumeSchema);
 
 export default resumeModel;

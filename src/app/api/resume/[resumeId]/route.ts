@@ -10,12 +10,12 @@ export async function GET(
 ) {
   try {
     await mongoDB();
-    const user = await getCurrentUser();
+    const userId = await getCurrentUser();
     const { resumeId } = await params;
 
     const resume = await resumeModel.findOne({
       _id: resumeId,
-      user_id: user.userId,
+      user_id: userId,
     });
 
     if (!resume) {

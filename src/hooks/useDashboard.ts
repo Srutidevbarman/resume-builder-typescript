@@ -38,15 +38,18 @@ export function useDashboard() {
 
       const data: Resume[] = [];
 
-      for (const id of ids) {
+      for (const resumeId of ids) {
         try {
-          const res = await fetch(`/api/resume/${id}`);
+          const res = await fetch(`/api/resume/${resumeId}`);
           const json = await res.json();
 
           if (json.success) {
+            console.log("json.data", json.data);
             data.push(json.data);
           }
-        } catch {}
+        } catch (error) {
+          console.error("Error fetching resume:", error);
+        }
       }
 
       setResumes(data);

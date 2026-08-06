@@ -17,7 +17,7 @@ export default function AuthLayout({ title, subtitle, children }: Props) {
         <div className="absolute w-[450px] h-[450px] rounded-full bg-purple-600/20 blur-[120px] bottom-[-150px] right-[-100px]" />
       </div>
 
-      <Card className="relative z-10 w-full max-w-md p-8 space-y-8">
+      <Card className="relative z-10 w-full max-w-md p-5 space-y-8">
         <Logo />
 
         <div className="text-center">

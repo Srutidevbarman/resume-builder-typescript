@@ -53,6 +53,13 @@ export default function LoginPage() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
+        <Input
+          label="Mobile"
+          placeholder="1234567890"
+          value={form.mobile}
+          onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+        />
+
         {error && <p className="text-red-400">{error}</p>}
 
         <Button loading={loading} className="w-full">
@@ -60,9 +67,9 @@ export default function LoginPage() {
         </Button>
 
         <p className="text-center text-gray-400">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-violet-400">
-            Register
+          Already have an account?{" "}
+          <Link href="/login" className="text-violet-400">
+            Sign In
           </Link>
         </p>
       </form>

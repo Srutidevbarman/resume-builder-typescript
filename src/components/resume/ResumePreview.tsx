@@ -26,7 +26,8 @@ export default function ResumePreview({ resume }: Props) {
       <h2 className="mb-3 text-xl font-bold">Professional Summary</h2>
 
       <p className="leading-7 whitespace-pre-wrap">
-        {resume.summery || "Professional summary will appear here..."}
+        {resume.summery ||
+          "Your AI generated professional summary will appear here."}
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ import PersonalTab from "./tabs/PersonalTab";
 import Tabs from "./Tabs";
 import TopBar from "./TopBar";
 import ResumePreview from "./ResumePreview";
+import SummaryTab from "./tabs/SummaryTab";
 
 interface Props {
   resume: any;
@@ -27,6 +28,9 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
             <div className="mt-8">
               {activeTab === "Personal" && (
                 <PersonalTab resume={resume} updateResume={updateResume} />
+              )}
+              {activeTab === "Summary" && (
+                <SummaryTab resume={resume} updateResume={updateResume} />
               )}
             </div>
           </div>

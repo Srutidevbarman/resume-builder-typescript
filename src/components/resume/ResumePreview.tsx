@@ -28,6 +28,37 @@ export default function ResumePreview({ resume }: Props) {
       <p className="leading-7 whitespace-pre-wrap">
         {resume.summery ||
           "Your AI generated professional summary will appear here."}
+        {resume.workExperience.length > 0 && (
+          <>
+            <hr className="my-8" />
+
+            <h2 className="mb-5 text-xl font-bold">Work Experience</h2>
+
+            <div className="space-y-6">
+              {resume.workExperience.map((experience: any, index: number) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">
+                      {experience.position}
+                    </h3>
+
+                    <span className="text-sm text-gray-500">
+                      {experience.startDate}
+                      {" - "}
+                      {experience.endDate}
+                    </span>
+                  </div>
+
+                  <p className="text-gray-700">{experience.company}</p>
+
+                  <p className="mt-3 whitespace-pre-wrap leading-7">
+                    {experience.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </p>
     </div>
   );

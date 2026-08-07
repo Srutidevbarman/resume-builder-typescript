@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import PersonalTab from "./tabs/PersonalTab";
 import Tabs from "./Tabs";
 import TopBar from "./TopBar";
 import ResumePreview from "./ResumePreview";
@@ -9,9 +9,10 @@ import ResumePreview from "./ResumePreview";
 interface Props {
   resume: any;
   saving: boolean;
+  updateResume: (resume: any) => void;
 }
 
-export default function ResumeEditor({ resume, saving }: Props) {
+export default function ResumeEditor({ resume, saving, updateResume }: Props) {
   const [activeTab, setActiveTab] = useState("Personal");
 
   return (
@@ -24,9 +25,9 @@ export default function ResumeEditor({ resume, saving }: Props) {
             <Tabs active={activeTab} setActive={setActiveTab} />
 
             <div className="mt-8">
-              <div className="rounded-xl border border-dashed border-white/10 p-12 text-center text-gray-400">
-                {activeTab} tab coming in next part...
-              </div>
+              {activeTab === "Personal" && (
+                <PersonalTab resume={resume} updateResume={updateResume} />
+              )}
             </div>
           </div>
         </section>

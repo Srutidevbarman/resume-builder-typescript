@@ -58,14 +58,14 @@ export async function PATCH(
 ) {
   try {
     await mongoDB();
-    const user = await getCurrentUser();
+    const userId = await getCurrentUser();
     const { resumeId } = await params;
     const body = await req.json();
 
     const updateResume = await resumeModel.findOneAndUpdate(
       {
         _id: resumeId,
-        user_id: user.userId,
+        user_id: userId,
       },
       {
         $set: body,

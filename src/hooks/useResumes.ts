@@ -61,6 +61,10 @@ const useResume = (resumeId: string) => {
     loading,
     saving,
     saveResume,
+
+    updateResume(updatedResume: any) {
+      setResume(updatedResume);
+    },
   };
 };
 

@@ -7,7 +7,7 @@ import TopBar from "./TopBar";
 import ResumePreview from "./ResumePreview";
 import SummaryTab from "./tabs/SummaryTab";
 import ExperienceTab from "./tabs/ExperienceTab";
-
+import ProjectsTab from "./tabs/ProjectsTab";
 interface Props {
   resume: any;
   saving: boolean;
@@ -35,6 +35,9 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
               )}
               {activeTab === "Experience" && (
                 <ExperienceTab resume={resume} updateResume={updateResume} />
+              )}
+              {activeTab === "Projects" && (
+                <ProjectsTab resume={resume} updateResume={updateResume} />
               )}
             </div>
           </div>

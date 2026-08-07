@@ -59,6 +59,48 @@ export default function ResumePreview({ resume }: Props) {
             </div>
           </>
         )}
+        {resume.projects.length > 0 && (
+          <>
+            <hr className="my-8" />
+
+            <h2 className="mb-5 text-xl font-bold">Projects</h2>
+
+            <div className="space-y-6">
+              {resume.projects.map((project: any, index: number) => (
+                <div key={index}>
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-semibold text-lg">{project.title}</h3>
+
+                    <div className="flex gap-4 text-sm text-blue-700">
+                      {project.githubUrl && (
+                        <a href={project.githubUrl} target="_blank">
+                          GitHub
+                        </a>
+                      )}
+
+                      {project.liveUrl && (
+                        <a href={project.liveUrl} target="_blank">
+                          Live
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {project.techStack.length > 0 && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      <strong>Stack:</strong>
+                      {project.techStack.join(",")}
+                    </p>
+                  )}
+
+                  <p className="mt-3 whitespace-pre-wrap leading-7">
+                    {project.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </p>
     </div>
   );

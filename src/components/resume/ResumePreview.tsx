@@ -128,6 +128,46 @@ export default function ResumePreview({ resume }: Props) {
             </div>
           </>
         )}
+        {resume.skills?.length > 0 && (
+          <>
+            <hr className="my-8" />
+
+            <h2 className="mb-5 text-xl font-bold">Skills</h2>
+
+            <div className="flex flex-wrap gap-2">
+              {resume.skills.map((skill: string, index: number) => (
+                <span
+                  key={`${skill}-${index}`}
+                  className="rounded-md border border-gray-300 px-3 py-1 text-sm"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
+        {resume.certifications?.length > 0 && (
+          <>
+            <hr className="my-8" />
+
+            <h2 className="mb-5 text-xl font-bold">Certifications</h2>
+
+            <ul className="space-y-2">
+              {resume.certifications.map(
+                (certification: string, index: number) => (
+                  <li
+                    key={`${certification}-${index}`}
+                    className="flex items-start gap-2"
+                  >
+                    <span className="font-bold">•</span>
+
+                    <span>{certification}</span>
+                  </li>
+                ),
+              )}
+            </ul>
+          </>
+        )}
       </p>
     </div>
   );

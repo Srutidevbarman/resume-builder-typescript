@@ -101,6 +101,33 @@ export default function ResumePreview({ resume }: Props) {
             </div>
           </>
         )}
+        {resume.education.length > 0 && (
+          <>
+            <hr className="my-8" />
+
+            <h2 className="mb-5 text-xl font-bold">Education</h2>
+
+            <div className="space-y-6">
+              {resume.education.map((edu: any, index: number) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-lg">{edu.degree}</h3>
+
+                    <span className="text-sm text-gray-500">
+                      {edu.startDate}
+                      {" - "}
+                      {edu.endDate}
+                    </span>
+                  </div>
+
+                  <p className="text-gray-700">{edu.institution}</p>
+
+                  <p className="mt-3 whitespace-pre-wrap">{edu.description}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </p>
     </div>
   );

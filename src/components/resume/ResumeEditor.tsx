@@ -58,7 +58,13 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
           </div>
         </section>
 
-        <section className="overflow-y-auto bg-neutral-200 p-8 lg:col-span-2">
+        <section
+          className="
+    overflow-auto
+    bg-neutral-200
+    lg:col-span-2
+  "
+        >
           <ResumePreview resume={resume} />
         </section>
       </div>

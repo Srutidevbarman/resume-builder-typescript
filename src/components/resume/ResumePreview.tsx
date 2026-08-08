@@ -2,173 +2,250 @@ interface Props {
   resume: any;
 }
 
+function formatResumeDate(date?: string) {
+  if (!date) return "";
+
+  const [year, month] = date.split("-");
+
+  if (!year || !month) {
+    return date;
+  }
+
+  const parsed = new Date(Number(year), Number(month) - 1);
+
+  return parsed.toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
+}
 export default function ResumePreview({ resume }: Props) {
-  const p = resume.personalInfo;
+  const personal = resume.personalInfo || {};
 
   return (
-    <div className="resume-preview mx-auto max-w-[794px] rounded-lg bg-white p-10 text-black shadow-xl">
-      <h1 className="text-4xl font-bold">{p.fullname || "Your Name"}</h1>
+    <div className="resume-preview-wrapper">
+      <article className="resume-preview">
+        {/* ================= HEADER ================= */}
 
-      <p className="mt-2 text-gray-600">
-        {[p.email, p.mobile, p.location].filter(Boolean).join(" • ")}
-      </p>
+        <header className="resume-header">
+          <h1>{personal.fullname || "Your Name"}</h1>
 
-      <div className="mt-2 text-sm text-blue-700 flex gap-4 flex-wrap">
-        {p.github && <span>{p.github}</span>}
+          {resume.workExperience?.[0]?.position && (
+            <p className="resume-role">{resume.workExperience[0].position}</p>
+          )}
 
-        {p.linkedIn && <span>{p.linkedIn}</span>}
+          <div className="resume-contact">
+            {personal.email && <span>{personal.email}</span>}
 
-        {p.portfolio && <span>{p.portfolio}</span>}
-      </div>
+            {personal.mobile && <span>{personal.mobile}</span>}
 
-      <hr className="my-8" />
+            {personal.location && <span>{personal.location}</span>}
+          </div>
 
-      <h2 className="mb-3 text-xl font-bold">Professional Summary</h2>
+          <div className="resume-links">
+            {personal.github && (
+              <a
+                href={personal.github}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+            )}
 
-      <p className="leading-7 whitespace-pre-wrap">
-        {resume.summery ||
-          "Your AI generated professional summary will appear here."}
-        {resume.workExperience.length > 0 && (
-          <>
-            <hr className="my-8" />
+            {personal.linkedIn && (
+              <a
+                href={personal.linkedIn}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                LinkedIn
+              </a>
+            )}
 
-            <h2 className="mb-5 text-xl font-bold">Work Experience</h2>
+            {personal.portfolio && (
+              <a
+                href={personal.portfolio}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Portfolio
+              </a>
+            )}
+          </div>
+        </header>
 
-            <div className="space-y-6">
+        {/* ================= SUMMARY ================= */}
+
+        {resume.summery && (
+          <ResumeSection title="Professional Summary">
+            <p className="resume-paragraph">{resume.summery}</p>
+          </ResumeSection>
+        )}
+
+        {/* ================= EXPERIENCE ================= */}
+
+        {resume.workExperience?.length > 0 && (
+          <ResumeSection title="Work Experience">
+            <div className="resume-list">
               {resume.workExperience.map((experience: any, index: number) => (
-                <div key={index}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">
-                      {experience.position}
-                    </h3>
+                <div key={experience._id || index} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3>{experience.position || "Position"}</h3>
 
-                    <span className="text-sm text-gray-500">
-                      {experience.startDate}
-                      {" - "}
-                      {experience.endDate}
+                      <p className="resume-company">{experience.company}</p>
+                    </div>
+
+                    <span className="resume-date">
+                      {formatResumeDate(experience.startDate)}
+
+                      {experience.endDate
+                        ? ` – ${formatResumeDate(experience.endDate)}`
+                        : ""}
                     </span>
                   </div>
 
-                  <p className="text-gray-700">{experience.company}</p>
-
-                  <p className="mt-3 whitespace-pre-wrap leading-7">
-                    {experience.description}
-                  </p>
+                  {experience.description && (
+                    <p className="resume-description">
+                      {experience.description}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-          </>
+          </ResumeSection>
         )}
-        {resume.projects.length > 0 && (
-          <>
-            <hr className="my-8" />
 
-            <h2 className="mb-5 text-xl font-bold">Projects</h2>
+        {/* ================= PROJECTS ================= */}
 
-            <div className="space-y-6">
+        {resume.projects?.length > 0 && (
+          <ResumeSection title="Projects">
+            <div className="resume-list">
               {resume.projects.map((project: any, index: number) => (
-                <div key={index}>
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-lg">{project.title}</h3>
+                <div key={project._id || index} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <h3>{project.title || "Project"}</h3>
 
-                    <div className="flex gap-4 text-sm text-blue-700">
+                    <div className="resume-project-links">
                       {project.githubUrl && (
-                        <a href={project.githubUrl} target="_blank">
+                        <a
+                          href={project.githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           GitHub
                         </a>
                       )}
 
                       {project.liveUrl && (
-                        <a href={project.liveUrl} target="_blank">
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           Live
                         </a>
                       )}
                     </div>
                   </div>
 
-                  {project.techStack.length > 0 && (
-                    <p className="mt-2 text-sm text-gray-600">
-                      <strong>Stack:</strong>
-                      {project.techStack.join(",")}
+                  {project.techStack?.length > 0 && (
+                    <p className="resume-tech">
+                      {project.techStack.join(" • ")}
                     </p>
                   )}
 
-                  <p className="mt-3 whitespace-pre-wrap leading-7">
-                    {project.description}
-                  </p>
+                  {project.description && (
+                    <p className="resume-description">{project.description}</p>
+                  )}
                 </div>
               ))}
             </div>
-          </>
+          </ResumeSection>
         )}
-        {resume.education.length > 0 && (
-          <>
-            <hr className="my-8" />
 
-            <h2 className="mb-5 text-xl font-bold">Education</h2>
+        {/* ================= EDUCATION ================= */}
 
-            <div className="space-y-6">
-              {resume.education.map((edu: any, index: number) => (
-                <div key={index}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">{edu.degree}</h3>
+        {resume.education?.length > 0 && (
+          <ResumeSection title="Education">
+            <div className="resume-list">
+              {resume.education.map((education: any, index: number) => (
+                <div key={education._id || index} className="resume-entry">
+                  <div className="resume-entry-header">
+                    <div>
+                      <h3>{education.degree || "Degree"}</h3>
 
-                    <span className="text-sm text-gray-500">
-                      {edu.startDate}
-                      {" - "}
-                      {edu.endDate}
+                      <p className="resume-company">{education.institution}</p>
+                    </div>
+
+                    <span className="resume-date">
+                      {formatResumeDate(education.startDate)}
+
+                      {education.endDate
+                        ? ` – ${formatResumeDate(education.endDate)}`
+                        : ""}
                     </span>
                   </div>
 
-                  <p className="text-gray-700">{edu.institution}</p>
-
-                  <p className="mt-3 whitespace-pre-wrap">{edu.description}</p>
+                  {education.description && (
+                    <p className="resume-description">
+                      {education.description}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
-          </>
+          </ResumeSection>
         )}
+
+        {/* ================= SKILLS ================= */}
+
         {resume.skills?.length > 0 && (
-          <>
-            <hr className="my-8" />
-
-            <h2 className="mb-5 text-xl font-bold">Skills</h2>
-
-            <div className="flex flex-wrap gap-2">
+          <ResumeSection title="Skills">
+            <div className="resume-skills">
               {resume.skills.map((skill: string, index: number) => (
-                <span
-                  key={`${skill}-${index}`}
-                  className="rounded-md border border-gray-300 px-3 py-1 text-sm"
-                >
+                <span key={`${skill}-${index}`} className="resume-skill">
                   {skill}
                 </span>
               ))}
             </div>
-          </>
+          </ResumeSection>
         )}
+
+        {/* ================= CERTIFICATIONS ================= */}
+
         {resume.certifications?.length > 0 && (
-          <>
-            <hr className="my-8" />
-
-            <h2 className="mb-5 text-xl font-bold">Certifications</h2>
-
-            <ul className="space-y-2">
+          <ResumeSection title="Certifications">
+            <ul className="resume-certifications">
               {resume.certifications.map(
                 (certification: string, index: number) => (
-                  <li
-                    key={`${certification}-${index}`}
-                    className="flex items-start gap-2"
-                  >
-                    <span className="font-bold">•</span>
-
-                    <span>{certification}</span>
-                  </li>
+                  <li key={`${certification}-${index}`}>{certification}</li>
                 ),
               )}
             </ul>
-          </>
+          </ResumeSection>
         )}
-      </p>
+      </article>
     </div>
+  );
+}
+
+/* ================================================= */
+/* SECTION COMPONENT                                 */
+/* ================================================= */
+
+function ResumeSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="resume-section">
+      <h2 className="resume-section-title">{title}</h2>
+
+      {children}
+    </section>
   );
 }

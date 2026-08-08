@@ -65,7 +65,7 @@ export default function ProjectsTab({ resume, updateResume }: Props) {
           key={index}
           className="input flex min-h-[56px] flex-wrap items-center gap-2 rounded-xl p-2 focus-within:border-violet-500"
         >
-          <div className="flex justify-between">
+          <div className="w-full flex items-center justify-between gap-4">
             <h2 className="text-xl font-bold">Project {index + 1}</h2>
 
             <button

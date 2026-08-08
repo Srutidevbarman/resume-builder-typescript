@@ -11,6 +11,8 @@ import ProjectsTab from "./tabs/ProjectsTab";
 import EducationTab from "./tabs/EducationTab";
 import SkillsTab from "./tabs/SkillsTab";
 import CertificationsTab from "./tabs/CertificationTab";
+import ATSModal from "./ai/ATSModal";
+
 interface Props {
   resume: any;
   saving: boolean;
@@ -19,11 +21,19 @@ interface Props {
 
 export default function ResumeEditor({ resume, saving, updateResume }: Props) {
   const [activeTab, setActiveTab] = useState("Personal");
-
+  const [atsOpen, setAtsOpen] = useState(false);
   return (
     <main className="h-screen">
       <TopBar saving={saving} />
-
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={() => setAtsOpen(true)}
+          className="rounded-lg border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-300 transition hover:bg-violet-500/20"
+        >
+          ✨ ATS Score
+        </button>
+      </div>
       <div className="grid h-[calc(100vh-88px)] lg:grid-cols-5">
         <section className="overflow-y-auto border-r border-white/10 lg:col-span-3">
           <div className="p-6">
@@ -77,6 +87,12 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
           <ResumePreview resume={resume} />
         </section>
       </div>
+      <ATSModal
+        open={atsOpen}
+        onClose={() => setAtsOpen(false)}
+        resume={resume}
+        updateResume={updateResume}
+      />
     </main>
   );
 }

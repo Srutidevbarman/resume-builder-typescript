@@ -29,9 +29,7 @@ export default function ResumePreview({ resume }: Props) {
         <header className="resume-header">
           <h1>{personal.fullname || "Your Name"}</h1>
 
-          {resume.workExperience?.[0]?.position && (
-            <p className="resume-role">{resume.workExperience[0].position}</p>
-          )}
+          {resume.title && <p className="resume-role">{resume.title}</p>}
 
           <div className="resume-contact">
             {personal.email && <span>{personal.email}</span>}
@@ -93,7 +91,9 @@ export default function ResumePreview({ resume }: Props) {
                     <div>
                       <h3>{experience.position || "Position"}</h3>
 
-                      <p className="resume-company">{experience.company}</p>
+                      <p className="resume-company">
+                        company - {experience.company}
+                      </p>
                     </div>
 
                     <span className="resume-date">

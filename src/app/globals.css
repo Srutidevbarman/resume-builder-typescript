@@ -158,9 +158,9 @@ body {
 .resume-header h1 {
   margin: 0;
 
-  font-size: 34px;
+  font-size: 32px;
   line-height: 1.15;
-  font-weight: 800;
+  font-weight: 600;
 
   letter-spacing: -0.5px;
 
@@ -293,7 +293,7 @@ body {
 .resume-company {
   margin: 2px 0 0;
 
-  font-size: 11px;
+  font-size: 12px;
 
   font-weight: 600;
 

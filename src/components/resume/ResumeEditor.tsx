@@ -60,11 +60,20 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
 
         <section
           className="
-    overflow-auto
-    bg-neutral-200
-    lg:col-span-2
-  "
+          overflow-auto
+          bg-neutral-200
+          lg:col-span-2
+          "
         >
+          <div className="no-print flex justify-end border-b border-black/10 bg-white p-3">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+            >
+              Print / Download PDF
+            </button>
+          </div>
           <ResumePreview resume={resume} />
         </section>
       </div>

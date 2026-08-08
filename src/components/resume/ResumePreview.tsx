@@ -22,7 +22,7 @@ export default function ResumePreview({ resume }: Props) {
   const personal = resume.personalInfo || {};
 
   return (
-    <div className="resume-preview-wrapper">
+    <div className="resume-preview-wrapper print-resume">
       <article className="resume-preview">
         {/* ================= HEADER ================= */}
 

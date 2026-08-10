@@ -1,9 +1,4 @@
-interface Props {
-  active: string;
-  setActive: (tab: string) => void;
-}
-
-const tabs = [
+export const resumeTabs = [
   "Personal",
   "Summary",
   "Experience",
@@ -11,12 +6,19 @@ const tabs = [
   "Education",
   "Skills",
   "Certifications",
-];
+] as const;
+
+export type ResumeTab = (typeof resumeTabs)[number];
+
+interface Props {
+  active: ResumeTab;
+  setActive: (tab: ResumeTab) => void;
+}
 
 export default function Tabs({ active, setActive }: Props) {
   return (
     <div className="flex gap-2 overflow-x-auto border-b border-white/10 pb-3">
-      {tabs.map((tab) => (
+      {resumeTabs.map((tab) => (
         <button
           key={tab}
           onClick={() => setActive(tab)}

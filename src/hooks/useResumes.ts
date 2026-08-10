@@ -23,6 +23,11 @@ const useResume = (resumeId: string) => {
       const data = await res.json();
 
       if (!data.success) {
+        if (res.status === 401) {
+          router.replace("/login");
+          return;
+        }
+
         router.replace("/dashboard");
         return;
       }

@@ -18,17 +18,27 @@ export function useDashboard() {
   const [resumes, setResumes] = useState<Resume[]>([]);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-
-    if (!savedUser) {
-      router.replace("/login");
-      return;
-    }
-
-    setUser(JSON.parse(savedUser));
-
-    loadResumes();
+    checkSession();
   }, []);
+
+  async function checkSession() {
+    try {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        router.replace("/login");
+        return;
+      }
+
+      setUser(data.data.user);
+      await loadResumes();
+    } catch {
+      router.replace("/login");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadResumes() {
     try {
@@ -44,8 +54,10 @@ export function useDashboard() {
           const json = await res.json();
 
           if (json.success) {
-            console.log("json.data", json.data);
             data.push(json.data);
+          } else if (res.status === 401) {
+            router.replace("/login");
+            return;
           }
         } catch (error) {
           console.error("Error fetching resume:", error);
@@ -68,7 +80,12 @@ export function useDashboard() {
 
       const json = await res.json();
 
-      if (!json.success) return;
+      if (!json.success) {
+        if (res.status === 401) {
+          router.replace("/login");
+        }
+        return;
+      }
 
       const ids: string[] = JSON.parse(
         localStorage.getItem("resumeIds") || "[]",
@@ -84,8 +101,11 @@ export function useDashboard() {
     }
   }
 
-  function logout() {
+  async function logout() {
     localStorage.clear();
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
     router.replace("/login");
   }
 

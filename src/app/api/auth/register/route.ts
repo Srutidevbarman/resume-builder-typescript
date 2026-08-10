@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
     response.cookies.set("token", token, {
       httpOnly: true,
       sameSite: "lax",
-      maxAge: 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60,
     });
     return response;
   } catch (error) {

@@ -31,6 +31,18 @@ export async function POST(req: NextRequest) {
       },
     );
   } catch (error) {
+    if (error instanceof Error && error.message === "unauthorized") {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "unauthorized",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
     console.log("error in creating resume", error);
     return NextResponse.json<ApiResponse>(
       {

@@ -61,6 +61,13 @@ export async function PATCH(
     const userId = await getCurrentUser();
     const { resumeId } = await params;
     const body = await req.json();
+    const updateBody = { ...body };
+
+    delete updateBody._id;
+    delete updateBody.user_id;
+    delete updateBody.createdAt;
+    delete updateBody.updatedAt;
+    delete updateBody.__v;
 
     const updateResume = await resumeModel.findOneAndUpdate(
       {
@@ -68,7 +75,7 @@ export async function PATCH(
         user_id: userId,
       },
       {
-        $set: body,
+        $set: updateBody,
       },
       {
         new: true,

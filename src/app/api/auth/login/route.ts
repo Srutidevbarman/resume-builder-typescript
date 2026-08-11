@@ -1,3 +1,4 @@
+import { normalizeEmail, normalizeString, setAuthCookie } from "@/lib/auth";
 import { generateToken } from "@/lib/jwt";
 import { mongoDB } from "@/lib/mongodb";
 import userModel from "@/models/User.model";
@@ -8,9 +9,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     await mongoDB();
-    let body: LoginBody = await req.json();
+    const body: LoginBody = await req.json();
 
-    let { email, password } = body;
+    const email = normalizeEmail(body.email);
+    const password = normalizeString(body.password);
 
     if (!email || !password) {
       return NextResponse.json<ApiResponse>(
@@ -23,24 +25,24 @@ export async function POST(req: NextRequest) {
         },
       );
     }
-    let isExisted = await userModel.findOne({ email });
-    if (!isExisted) {
+    const user = await userModel.findOne({ email }).select("+password");
+    if (!user) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          message: "user not found",
+          message: "invalid email or password",
         },
         {
-          status: 400,
+          status: 401,
         },
       );
     }
-    const isMatch = isExisted.comparePass(password);
+    const isMatch = await user.comparePass(password);
     if (!isMatch) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
-          message: "user not found",
+          message: "invalid email or password",
         },
         {
           status: 401,
@@ -48,17 +50,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let token = generateToken({ userId: isExisted._id.toString() });
+    const token = generateToken({ userId: user._id.toString() });
 
-    let response = NextResponse.json<ApiResponse>(
+    const response = NextResponse.json<ApiResponse>(
       {
         success: true,
         message: "user logged in successfully",
         data: {
           user: {
-            _id: isExisted._id,
-            name: isExisted.name,
-            email: isExisted.email,
+            _id: user._id,
+            name: user.name,
+            email: user.email,
           },
         },
       },
@@ -66,13 +68,7 @@ export async function POST(req: NextRequest) {
         status: 200,
       },
     );
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60,
-    });
+    setAuthCookie(response, token);
     return response;
   } catch (error) {
     console.log("error in login api", error);
@@ -80,9 +76,6 @@ export async function POST(req: NextRequest) {
       {
         success: false,
         message: "something went wrong",
-        error: {
-          error,
-        },
       },
       { status: 500 },
     );

@@ -1,3 +1,12 @@
+import {
+  isValidEmail,
+  isValidPassword,
+  normalizeEmail,
+  normalizeMobile,
+  normalizeString,
+  PASSWORD_REQUIREMENTS_MESSAGE,
+  setAuthCookie,
+} from "@/lib/auth";
 import { generateToken } from "@/lib/jwt";
 import { mongoDB } from "@/lib/mongodb";
 import userModel from "@/models/User.model";
@@ -8,9 +17,12 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     await mongoDB();
-    let body: RegisterBody = await req.json();
+    const body: RegisterBody = await req.json();
 
-    let { name, email, mobile, password } = body;
+    const name = normalizeString(body.name);
+    const email = normalizeEmail(body.email);
+    const mobile = normalizeMobile(body.mobile);
+    const password = normalizeString(body.password);
 
     if (!name || !email || !password) {
       return NextResponse.json<ApiResponse>(
@@ -23,7 +35,44 @@ export async function POST(req: NextRequest) {
         },
       );
     }
-    let isExisted = await userModel.findOne({ email });
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "please enter a valid email address",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (!isValidPassword(password)) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: PASSWORD_REQUIREMENTS_MESSAGE,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (mobile && mobile.length !== 10) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "mobile number must contain 10 digits",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const isExisted = await userModel.exists({ email });
     if (isExisted) {
       return NextResponse.json<ApiResponse>(
         {
@@ -35,15 +84,15 @@ export async function POST(req: NextRequest) {
         },
       );
     }
-    let newUser = await userModel.create({
+    const newUser = await userModel.create({
       name,
       email,
       password,
-      mobile,
+      mobile: mobile || undefined,
     });
-    let token = generateToken({ userId: newUser._id.toString() });
+    const token = generateToken({ userId: newUser._id.toString() });
 
-    let response = NextResponse.json<ApiResponse>(
+    const response = NextResponse.json<ApiResponse>(
       {
         success: true,
         message: "user registered successfully",
@@ -59,23 +108,29 @@ export async function POST(req: NextRequest) {
         status: 201,
       },
     );
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60,
-    });
+    setAuthCookie(response, token);
     return response;
   } catch (error) {
     console.log("error in register api", error);
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === 11000
+    ) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: false,
+          message: "user already exists",
+        },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json<ApiResponse>(
       {
         success: false,
         message: "something went wrong",
-        error: {
-          error,
-        },
       },
       { status: 500 },
     );

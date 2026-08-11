@@ -23,7 +23,8 @@ interface ATSResult {
     contentQuality: number;
     structureCompleteness: number;
     clarityConciseness: number;
-    contentEssentials: number;
+    contactEssentials?: number;
+    contentEssentials?: number;
   };
 
   strengths: string[];
@@ -44,11 +45,13 @@ export default function ATSModal({
   const [result, setResult] = useState<ATSResult | null>(null);
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function analyzeResume() {
     try {
       setLoading(true);
       setError("");
+      setSuccess("");
 
       const resumeText = resumeToText(resume);
 
@@ -87,6 +90,7 @@ export default function ATSModal({
     try {
       setImproving(true);
       setError("");
+      setSuccess("");
 
       const res = await fetch("/api/ai/auto-improve-resume", {
         method: "POST",
@@ -113,8 +117,10 @@ export default function ATSModal({
 
       updateResume(improvedResume);
 
-      // Re-analyze the improved resume
       setResult(null);
+      setSuccess(
+        "Applied ATS improvements to your resume. Review the changes, then analyze again.",
+      );
     } catch (error) {
       console.error("Auto improve error:", error);
 
@@ -153,6 +159,7 @@ export default function ATSModal({
             </div>
 
             {error && <p className="text-sm text-red-400">{error}</p>}
+            {success && <p className="text-sm text-green-400">{success}</p>}
 
             <Button
               loading={loading}
@@ -222,8 +229,12 @@ export default function ATSModal({
                   />
 
                   <ScoreItem
-                    label="Content Essentials"
-                    score={result.breakdown.contentEssentials}
+                    label="Contact Info & Essentials"
+                    score={
+                      result.breakdown.contactEssentials ??
+                      result.breakdown.contentEssentials ??
+                      0
+                    }
                   />
                 </div>
               </div>

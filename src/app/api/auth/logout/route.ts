@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiResponse } from "@/types/api.types";
+import { clearAuthCookie } from "@/lib/auth";
 
 export async function POST() {
   const response = NextResponse.json<ApiResponse>(
@@ -12,13 +13,7 @@ export async function POST() {
     },
   );
 
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 0,
-  });
+  clearAuthCookie(response);
 
   return response;
 }

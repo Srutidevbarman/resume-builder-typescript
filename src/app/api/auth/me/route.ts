@@ -1,10 +1,11 @@
 import { getCurrentUser } from "@/lib/getCurrentUser";
+import { clearAuthCookie } from "@/lib/auth";
 import { mongoDB } from "@/lib/mongodb";
 import userModel from "@/models/User.model";
 import { ApiResponse } from "@/types/api.types";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     await mongoDB();
     const userId = await getCurrentUser();
@@ -35,8 +36,8 @@ export async function GET(req: NextRequest) {
         status: 200,
       },
     );
-  } catch (error) {
-    return NextResponse.json<ApiResponse>(
+  } catch {
+    const response = NextResponse.json<ApiResponse>(
       {
         success: false,
         message: "unauthorized",
@@ -45,5 +46,9 @@ export async function GET(req: NextRequest) {
         status: 401,
       },
     );
+
+    clearAuthCookie(response);
+
+    return response;
   }
 }

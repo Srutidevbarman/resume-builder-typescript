@@ -49,6 +49,10 @@ export default function LoginPage() {
           label="Password"
           type="password"
           placeholder="••••••••"
+          autoComplete="new-password"
+          minLength={8}
+          pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}"
+          title="Use at least 8 characters with uppercase, lowercase, number, and special character."
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />

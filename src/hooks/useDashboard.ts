@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface Resume {
   _id: string;
@@ -9,19 +9,35 @@ export interface Resume {
   updatedAt: string;
 }
 
+interface DashboardUser {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 export function useDashboard() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<DashboardUser | null>(null);
   const [resumes, setResumes] = useState<Resume[]>([]);
 
-  useEffect(() => {
-    checkSession();
-  }, []);
+  const loadResumes = useCallback(async () => {
+    const res = await fetch("/api/resume");
+    const json = await res.json();
 
-  async function checkSession() {
+    if (!res.ok || !json.success) {
+      if (res.status === 401) {
+        router.replace("/login");
+      }
+      return;
+    }
+
+    setResumes(json.data || []);
+  }, [router]);
+
+  const checkSession = useCallback(async () => {
     try {
       const res = await fetch("/api/auth/me");
       const data = await res.json();
@@ -38,37 +54,11 @@ export function useDashboard() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [loadResumes, router]);
 
-  async function loadResumes() {
-    try {
-      const ids: string[] = JSON.parse(
-        localStorage.getItem("resumeIds") || "[]",
-      );
-
-      const data: Resume[] = [];
-
-      for (const resumeId of ids) {
-        try {
-          const res = await fetch(`/api/resume/${resumeId}`);
-          const json = await res.json();
-
-          if (json.success) {
-            data.push(json.data);
-          } else if (res.status === 401) {
-            router.replace("/login");
-            return;
-          }
-        } catch (error) {
-          console.error("Error fetching resume:", error);
-        }
-      }
-
-      setResumes(data);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    void Promise.resolve().then(checkSession);
+  }, [checkSession]);
 
   async function createResume() {
     try {
@@ -86,14 +76,6 @@ export function useDashboard() {
         }
         return;
       }
-
-      const ids: string[] = JSON.parse(
-        localStorage.getItem("resumeIds") || "[]",
-      );
-
-      ids.push(json.data._id);
-
-      localStorage.setItem("resumeIds", JSON.stringify(ids));
 
       router.push(`/resume/${json.data._id}`);
     } finally {

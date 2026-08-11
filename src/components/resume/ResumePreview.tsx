@@ -216,7 +216,12 @@ export default function ResumePreview({ resume }: Props) {
 
         {resume.certifications?.length > 0 && (
           <ResumeSection title="Certifications">
-            <ul className="resume-certifications">
+            <ul
+              className="resume-certifications"
+              style={{
+                listStyleType: "disc",
+              }}
+            >
               {resume.certifications.map(
                 (certification: string, index: number) => (
                   <li key={`${certification}-${index}`}>{certification}</li>

@@ -4,13 +4,16 @@ import { useState } from "react";
 
 import Button from "@/components/ui/Button";
 import TagInput from "@/components/ui/TagInput";
+import { useToast } from "@/components/ui/ToastProvider";
+import type { IResume } from "@/types/resume.types";
 
 interface Props {
-  resume: any;
-  updateResume: (resume: any) => void;
+  resume: IResume;
+  updateResume: (resume: IResume) => void;
 }
 
 export default function SkillsTab({ resume, updateResume }: Props) {
+  const toast = useToast();
   const [jobTitle, setJobTitle] = useState("");
 
   const [experienceLevel, setExperienceLevel] = useState("Entry-level");
@@ -44,6 +47,7 @@ export default function SkillsTab({ resume, updateResume }: Props) {
       const data = await res.json();
 
       if (!data.success) {
+        toast.error(data.message || "Unable to generate skills.");
         return;
       }
 
@@ -75,8 +79,10 @@ export default function SkillsTab({ resume, updateResume }: Props) {
         ...resume,
         skills: uniqueSkills,
       });
+      toast.success("Skills generated.");
     } catch (error) {
       console.error("Failed to generate skills:", error);
+      toast.error("Unable to generate skills. Please try again.");
     } finally {
       setLoading(false);
     }

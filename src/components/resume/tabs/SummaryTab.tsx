@@ -3,13 +3,16 @@
 import { useState } from "react";
 
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
+import type { IResume } from "@/types/resume.types";
 
 interface Props {
-  resume: any;
-  updateResume: (resume: any) => void;
+  resume: IResume;
+  updateResume: (resume: IResume) => void;
 }
 
 export default function SummaryTab({ resume, updateResume }: Props) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
 
   const [jobTitle, setJobTitle] = useState("");
@@ -41,12 +44,18 @@ export default function SummaryTab({ resume, updateResume }: Props) {
 
       const data = await res.json();
 
-      if (!data.success) return;
+      if (!data.success) {
+        toast.error(data.message || "Unable to generate summary.");
+        return;
+      }
 
       updateResume({
         ...resume,
         summery: data.data.summary,
       });
+      toast.success("Summary generated.");
+    } catch {
+      toast.error("Unable to generate summary. Please try again.");
     } finally {
       setLoading(false);
     }

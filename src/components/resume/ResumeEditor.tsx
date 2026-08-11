@@ -19,9 +19,23 @@ interface Props {
   resume: IResume;
   saving: boolean;
   updateResume: (resume: IResume) => void;
+  autosaveEnabled?: boolean;
+  setAutosaveEnabled?: (v: boolean) => void;
+  autosaveDelay?: number;
+  setAutosaveDelay?: (v: number) => void;
+  onManualSave?: () => void;
 }
 
-export default function ResumeEditor({ resume, saving, updateResume }: Props) {
+export default function ResumeEditor({
+  resume,
+  saving,
+  updateResume,
+  autosaveEnabled = true,
+  setAutosaveEnabled,
+  autosaveDelay = 60_000,
+  setAutosaveDelay,
+  onManualSave,
+}: Props) {
   const [activeTab, setActiveTab] = useState<ResumeTab>("Personal");
   const [atsOpen, setAtsOpen] = useState(false);
 
@@ -37,7 +51,15 @@ export default function ResumeEditor({ resume, saving, updateResume }: Props) {
 
   return (
     <main className="h-screen">
-      <TopBar saving={saving} onOpenAts={() => setAtsOpen(true)} />
+      <TopBar
+        saving={saving}
+        onOpenAts={() => setAtsOpen(true)}
+        autosaveEnabled={autosaveEnabled}
+        setAutosaveEnabled={setAutosaveEnabled}
+        autosaveDelay={autosaveDelay}
+        setAutosaveDelay={setAutosaveDelay}
+        onManualSave={onManualSave}
+      />
       <div className="grid h-[calc(100vh-88px)] lg:grid-cols-5">
         <section className="overflow-y-auto border-r border-white/10 lg:col-span-3">
           <div className="p-6">

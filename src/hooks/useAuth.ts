@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export function useAuth() {
   const router = useRouter();
+  const toast = useToast();
 
   const [loading, setLoading] = useState(false);
 
@@ -30,15 +32,20 @@ export function useAuth() {
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message);
+        const message = data.message || "Unable to login.";
+        setError(message);
+        toast.error(message);
         return;
       }
 
       localStorage.setItem("user", JSON.stringify(data.data.user));
+      toast.success("Logged in successfully.");
 
       router.push("/dashboard");
     } catch {
-      setError("Unable to login.");
+      const message = "Unable to login. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -66,15 +73,20 @@ export function useAuth() {
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message);
+        const message = data.message || "Registration failed.";
+        setError(message);
+        toast.error(message);
         return;
       }
 
       localStorage.setItem("user", JSON.stringify(data.data.user));
+      toast.success("Account created successfully.");
 
       router.push("/dashboard");
     } catch {
-      setError("Registration failed.");
+      const message = "Registration failed. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

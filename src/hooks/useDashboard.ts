@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export interface Resume {
   _id: string;
@@ -17,6 +18,7 @@ interface DashboardUser {
 
 export function useDashboard() {
   const router = useRouter();
+  const toast = useToast();
 
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -29,13 +31,17 @@ export function useDashboard() {
 
     if (!res.ok || !json.success) {
       if (res.status === 401) {
+        toast.error("Your session expired. Please log in again.");
         router.replace("/login");
+        return;
       }
+      toast.error(json.message || "Unable to load resumes.");
       return;
     }
 
     setResumes(json.data || []);
-  }, [router]);
+    toast.success("Resumes loaded.");
+  }, [router, toast]);
 
   const checkSession = useCallback(async () => {
     try {
@@ -43,18 +49,21 @@ export function useDashboard() {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
+        toast.error("Please log in to continue.");
         router.replace("/login");
         return;
       }
 
       setUser(data.data.user);
+      toast.success("Signed in session verified.");
       await loadResumes();
     } catch {
+      toast.error("Unable to verify your session.");
       router.replace("/login");
     } finally {
       setLoading(false);
     }
-  }, [loadResumes, router]);
+  }, [loadResumes, router, toast]);
 
   useEffect(() => {
     void Promise.resolve().then(checkSession);
@@ -72,12 +81,18 @@ export function useDashboard() {
 
       if (!json.success) {
         if (res.status === 401) {
+          toast.error("Your session expired. Please log in again.");
           router.replace("/login");
+          return;
         }
+        toast.error(json.message || "Unable to create resume.");
         return;
       }
 
+      toast.success("Resume created successfully.");
       router.push(`/resume/${json.data._id}`);
+    } catch {
+      toast.error("Unable to create resume. Please try again.");
     } finally {
       setCreating(false);
     }
@@ -85,9 +100,21 @@ export function useDashboard() {
 
   async function logout() {
     localStorage.clear();
-    await fetch("/api/auth/logout", {
-      method: "POST",
-    });
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        toast.error(data.message || "Unable to log out.");
+        return;
+      }
+
+      toast.success("Logged out successfully.");
+    } catch {
+      toast.error("Unable to log out.");
+    }
     router.replace("/login");
   }
 

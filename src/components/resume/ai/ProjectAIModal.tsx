@@ -5,6 +5,7 @@ import { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface Props {
   open: boolean;
@@ -19,6 +20,7 @@ export default function ProjectAIModal({
   onClose,
   onGenerate,
 }: Props) {
+  const toast = useToast();
   const [role, setRole] = useState("");
 
   const [tech, setTech] = useState("");
@@ -54,11 +56,17 @@ export default function ProjectAIModal({
 
       const data = await res.json();
 
-      if (!data.success) return;
+      if (!data.success) {
+        toast.error(data.message || "Unable to generate project description.");
+        return;
+      }
 
       onGenerate(data.data.projectDescription.join("\n• "));
+      toast.success("Project description generated.");
 
       onClose();
+    } catch {
+      toast.error("Unable to generate project description. Please try again.");
     } finally {
       setLoading(false);
     }

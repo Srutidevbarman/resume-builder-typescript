@@ -4,15 +4,18 @@ import { useState } from "react";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
+import type { IResume, IWorkExperience } from "@/types/resume.types";
 
 import ExperienceAIModal from "../ai/ExperienceAIModal";
 
 interface Props {
-  resume: any;
-  updateResume: (resume: any) => void;
+  resume: IResume;
+  updateResume: (resume: IResume) => void;
 }
 
 export default function ExperienceTab({ resume, updateResume }: Props) {
+  const toast = useToast();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   function updateExperience(index: number, field: string, value: string) {
@@ -51,41 +54,51 @@ export default function ExperienceTab({ resume, updateResume }: Props) {
     updateResume({
       ...resume,
 
-      workExperience: resume.workExperience.filter(
-        (_: any, i: number) => i !== index,
-      ),
+      workExperience: resume.workExperience.filter((_, i) => i !== index),
     });
   }
 
   async function improve(index: number) {
     const description = resume.workExperience[index].description;
 
-    if (!description) return;
+    if (!description) {
+      toast.error("Add an experience description before improving it.");
+      return;
+    }
 
-    const res = await fetch("/api/ai/improve-content", {
-      method: "POST",
+    try {
+      const res = await fetch("/api/ai/improve-content", {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      body: JSON.stringify({
-        content: description,
-      }),
-    });
+        body: JSON.stringify({
+          content: description,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!data.success) return;
+      if (!data.success) {
+        toast.error(data.message || "Unable to improve experience.");
+        return;
+      }
 
-    updateExperience(index, "description", data.data.content);
+      updateExperience(index, "description", data.data.content);
+      toast.success("Experience improved.");
+    } catch {
+      toast.error("Unable to improve experience. Please try again.");
+    }
   }
 
   return (
     <div className="space-y-8">
       <Button onClick={addExperience}>+ Add Experience</Button>
 
-      {resume.workExperience.map((experience: any, index: number) => (
+      {resume.workExperience.map(
+        (experience: IWorkExperience, index: number) => (
         <div key={index} className="glass space-y-5 p-6">
           <div className="flex justify-between">
             <h2 className="text-xl font-bold">Experience {index + 1}</h2>
@@ -149,7 +162,8 @@ export default function ExperienceTab({ resume, updateResume }: Props) {
             <Button onClick={() => improve(index)}>Improve</Button>
           </div>
         </div>
-      ))}
+        ),
+      )}
 
       <ExperienceAIModal
         open={selectedIndex !== null}

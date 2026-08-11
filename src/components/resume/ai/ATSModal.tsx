@@ -4,14 +4,16 @@ import { useState } from "react";
 
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/ui/ToastProvider";
 
 import { resumeToText } from "@/lib/resumeToText";
+import type { IResume } from "@/types/resume.types";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  resume: any;
-  updateResume: (resume: any) => void;
+  resume: IResume;
+  updateResume: (resume: IResume) => void;
 }
 
 interface ATSResult {
@@ -40,6 +42,7 @@ export default function ATSModal({
   resume,
   updateResume,
 }: Props) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [improving, setImproving] = useState(false);
   const [result, setResult] = useState<ATSResult | null>(null);
@@ -70,14 +73,19 @@ export default function ATSModal({
       const data = await res.json();
       console.log("ATS API RESPONSE:", data);
       if (!data.success) {
-        setError(data.message || "Unable to analyze resume.");
+        const message = data.message || "Unable to analyze resume.";
+        setError(message);
+        toast.error(message);
 
         return;
       }
 
       setResult(data.data.content);
+      toast.success("ATS analysis completed.");
     } catch {
-      setError("Something went wrong while analyzing your resume.");
+      const message = "Something went wrong while analyzing your resume.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -108,7 +116,9 @@ export default function ATSModal({
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message || "Failed to improve resume.");
+        const message = data.message || "Failed to improve resume.";
+        setError(message);
+        toast.error(message);
 
         return;
       }
@@ -121,10 +131,13 @@ export default function ATSModal({
       setSuccess(
         "Applied ATS improvements to your resume. Review the changes, then analyze again.",
       );
+      toast.success("ATS improvements applied.");
     } catch (error) {
       console.error("Auto improve error:", error);
 
-      setError("Something went wrong while improving your resume.");
+      const message = "Something went wrong while improving your resume.";
+      setError(message);
+      toast.error(message);
     } finally {
       setImproving(false);
     }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface Props {
   open: boolean;
@@ -16,6 +17,7 @@ export default function ExperienceAIModal({
   onClose,
   onGenerate,
 }: Props) {
+  const toast = useToast();
   const [jobRole, setJobRole] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("Entry-level");
   const [yearsOfExperience, setYearsOfExperience] = useState("");
@@ -44,11 +46,17 @@ export default function ExperienceAIModal({
 
       const data = await res.json();
 
-      if (!data.success) return;
+      if (!data.success) {
+        toast.error(data.message || "Unable to generate experience.");
+        return;
+      }
 
       onGenerate(data.data.experienceDescription);
+      toast.success("Experience description generated.");
 
       onClose();
+    } catch {
+      toast.error("Unable to generate experience. Please try again.");
     } finally {
       setLoading(false);
     }

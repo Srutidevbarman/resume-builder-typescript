@@ -1,22 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/ToastProvider";
+import type { IResume } from "@/types/resume.types";
 
 const useResume = (resumeId: string) => {
   const router = useRouter();
+  const toast = useToast();
 
-  const [resume, setResume] = useState<any>(null);
+  const [resume, setResume] = useState<IResume | null>(null);
 
   const [loading, setLoading] = useState(true);
 
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadResume();
-  }, [resumeId]);
-
-  async function loadResume() {
+  const loadResume = useCallback(async () => {
     try {
       const res = await fetch(`/api/resume/${resumeId}`);
 
@@ -24,21 +23,31 @@ const useResume = (resumeId: string) => {
 
       if (!data.success) {
         if (res.status === 401) {
+          toast.error("Your session expired. Please log in again.");
           router.replace("/login");
           return;
         }
 
+        toast.error(data.message || "Unable to load resume.");
         router.replace("/dashboard");
         return;
       }
 
       setResume(data.data);
+      toast.success("Resume loaded.");
+    } catch {
+      toast.error("Unable to load resume. Please try again.");
+      router.replace("/dashboard");
     } finally {
       setLoading(false);
     }
-  }
+  }, [resumeId, router, toast]);
 
-  async function saveResume(updatedFields: any) {
+  useEffect(() => {
+    void Promise.resolve().then(loadResume);
+  }, [loadResume]);
+
+  async function saveResume(updatedFields: IResume) {
     try {
       setSaving(true);
 
@@ -54,7 +63,19 @@ const useResume = (resumeId: string) => {
 
       if (data.success) {
         setResume(data.data);
+        toast.success("Resume saved.");
+        return;
       }
+
+      if (res.status === 401) {
+        toast.error("Your session expired. Please log in again.");
+        router.replace("/login");
+        return;
+      }
+
+      toast.error(data.message || "Unable to save resume.");
+    } catch {
+      toast.error("Unable to save resume. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -67,7 +88,7 @@ const useResume = (resumeId: string) => {
     saving,
     saveResume,
 
-    updateResume(updatedResume: any) {
+    updateResume(updatedResume: IResume) {
       setResume(updatedResume);
     },
   };
